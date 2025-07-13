@@ -18,7 +18,7 @@ services:
     image: amazon/aws-cli
     command: >
       sh -c "
-        echo '* * * * * root aws s3 sync s3://logging-test-cf-logs /logs/cloudfront --exact-timestamps --size-only >> /var/log/cloudfront-sync.log 2>&1' >> /etc/crontabs/root && \
+        echo '* * * * * root aws s3 sync s3://logging-test-cf-logs /logs/cloudfront --exact-timestamps --size-only' >> /etc/crontabs/root && \
         touch /var/log/cloudfront-sync.log && \
         crond -f -l 2
       "
