@@ -16,7 +16,7 @@ services:
 
   cron:
     build:
-      context: ./cron
+      context: ./configs/cron
     volumes:
       - ./logs/cloudfront:/logs/cloudfront
     networks:
