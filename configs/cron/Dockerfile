@@ -28,5 +28,7 @@ RUN crontab /etc/cron.d/s3-sync
 # Create the log file to be able to run tail
 RUN touch /var/log/cron.log
 
+RUN aws sts get-caller-identity
+
 # Start cron in foreground
 CMD ["sh", "-c", "cron && tail -f /var/log/cron.log"]
