@@ -14,7 +14,7 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  cron:
+  aws-role-check:
     image: amazon/aws-cli:latest
     command: >
       sh -c "
