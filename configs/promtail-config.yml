@@ -28,7 +28,6 @@ scrape_configs:
           format: RFC3339Nano
       - output:
           source: output
-
   # System logs
   - job_name: system
     static_configs:
