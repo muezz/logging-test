@@ -1,0 +1,1 @@
+* * * * * root aws s3 sync s3://logging-test-cf-logs /logs/cloudfront --exact-timestamps --size-only >> /var/log/cloudfront-sync.log 2>&1

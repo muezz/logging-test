@@ -15,23 +15,16 @@ services:
         max-file: "3"
 
   cron:
-    image: amazon/aws-cli
-    command: >
-      sh -c "
-        echo '* * * * * aws s3 sync s3://logging-test-cf-logs /logs/cloudfront --exact-timestamps --size-only > /var/log/cloudfront-sync.log 2>&1' >> /etc/crontabs/root && \
-        touch /var/log/cloudfront-sync.log && \
-        tail -f /var/log/cloudfront-sync.log & \
-        crond -f -l 2
-      "
+    build:
+      context: ./cron
     volumes:
       - ./logs/cloudfront:/logs/cloudfront
-    depends_on:
-      - app
     networks:
       - my_network
     environment:
       - AWS_REGION=us-east-1
-
+    depends_on:
+      - app
   
   loki:
     image: grafana/loki:latest
