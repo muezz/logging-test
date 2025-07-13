@@ -55,7 +55,7 @@ scrape_configs:
         labels:
           job: cloudfront
           log_type: access
-          __path__: /var/log/cloudfront/*.log
+          __path__: /logs/cloudfront/*.log
     pipeline_stages:
       - regex:
           expression: '^(?P<date>\d{4}-\d{2}-\d{2})\s+(?P<time>\d{2}:\d{2}:\d{2})\s+(?P<edge_location>\w+-\w+\d+)\s+(?P<bytes>\d+)\s+(?P<client_ip>[\d\.]+)\s+(?P<method>\w+)\s+(?P<host>[^\s]+)\s+(?P<uri>[^\s]+)\s+(?P<status>\d+)\s+(?P<referrer>[^\s]+)\s+(?P<user_agent>[^\s]+)\s+(?P<query_string>[^\s]+)\s+(?P<cookie>[^\s]+)\s+(?P<edge_result_type>\w+)\s+(?P<edge_request_id>[^\s]+)\s+(?P<host_header>[^\s]+)\s+(?P<protocol>\w+)\s+(?P<bytes_sent>\d+)\s+(?P<time_taken>[\d\.]+)\s+(?P<forwarded_for>[^\s]+)\s+(?P<ssl_protocol>[^\s]+)\s+(?P<ssl_cipher>[^\s]+)\s+(?P<edge_response_result_type>\w+)\s+(?P<protocol_version>[^\s]+)\s+(?P<fle_status>[^\s]+)\s+(?P<fle_encrypted_fields>[^\s]+)\s+(?P<port>\d+)\s+(?P<time_to_first_byte>[\d\.]+)\s+(?P<detail_level>[^\s]+)\s+(?P<content_type>[^\s]+)\s+(?P<content_length>[^\s]+)\s+(?P<range_start>[^\s]+)\s+(?P<range_end>[^\s]+)'
