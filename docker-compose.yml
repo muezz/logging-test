@@ -16,43 +16,45 @@ services:
 
   aws-role-check:
     image: amazon/aws-cli:latest
-    entrypoint: ["/bin/sh", "-c"]
-    command: |
-      echo '=== Debugging AWS CLI Container ==='
-      echo 'Container started successfully'
-      echo 'Current user: ' && whoami
-      echo 'Environment variables:'
-      env | grep AWS || echo 'No AWS env vars set'
-      echo ''
-      echo '=== Testing Instance Metadata Service ==='
-      echo 'Testing metadata service connectivity...'
-      curl -s --connect-timeout 5 http://169.254.169.254/latest/meta-data/instance-id && echo ' - Instance ID retrieved' || echo 'FAILED: Cannot reach metadata service'
-      echo ''
-      echo 'Testing IAM role availability...'
-      curl -s --connect-timeout 5 http://169.254.169.254/latest/meta-data/iam/security-credentials/ && echo ' - IAM roles found' || echo 'FAILED: No IAM roles attached to instance'
-      echo ''
-      echo '=== Testing AWS CLI Configuration ==='
-      echo 'AWS CLI version:'
-      aws --version
-      echo 'AWS CLI configuration:'
-      aws configure list
-      echo ''
-      echo '=== AWS Identity Information ==='
-      aws sts get-caller-identity 2>&1 || echo 'FAILED: Cannot get caller identity - likely no IAM role attached'
-      echo ''
-      echo '=== Testing Basic AWS API Access ==='
-      echo 'Testing EC2 describe-regions (minimal permissions required):'
-      aws ec2 describe-regions --region us-east-1 --query 'Regions[0].RegionName' --output text 2>&1 || echo 'FAILED: Cannot access AWS APIs'
-      echo ''
-      echo '=== Testing S3 Access ==='
-      aws s3 ls 2>&1 || echo 'FAILED: S3 access denied or no buckets'
-      echo ''
-      echo '=== Summary ==='
-      echo 'If you see FAILED messages above, your EC2 instance likely needs:'
-      echo '1. An IAM role attached to the instance'
-      echo '2. The IAM role should have appropriate permissions'
-      echo '3. The metadata service should be accessible (IMDSv1 or IMDSv2)'
-      echo 'Container test completed.'
+    command: 
+      - /bin/sh
+      - -c
+      - |
+        echo "=== Debugging AWS CLI Container ==="
+        echo "Container started successfully"
+        echo "Current user: $(whoami)"
+        echo "Environment variables:"
+        env | grep AWS || echo "No AWS env vars set"
+        echo ""
+        echo "=== Testing Instance Metadata Service ==="
+        echo "Testing metadata service connectivity..."
+        curl -s --connect-timeout 5 http://169.254.169.254/latest/meta-data/instance-id && echo " - Instance ID retrieved" || echo "FAILED: Cannot reach metadata service"
+        echo ""
+        echo "Testing IAM role availability..."
+        curl -s --connect-timeout 5 http://169.254.169.254/latest/meta-data/iam/security-credentials/ && echo " - IAM roles found" || echo "FAILED: No IAM roles attached to instance"
+        echo ""
+        echo "=== Testing AWS CLI Configuration ==="
+        echo "AWS CLI version:"
+        aws --version
+        echo "AWS CLI configuration:"
+        aws configure list
+        echo ""
+        echo "=== AWS Identity Information ==="
+        aws sts get-caller-identity 2>&1 || echo "FAILED: Cannot get caller identity - likely no IAM role attached"
+        echo ""
+        echo "=== Testing Basic AWS API Access ==="
+        echo "Testing EC2 describe-regions (minimal permissions required):"
+        aws ec2 describe-regions --region us-east-1 --query 'Regions[0].RegionName' --output text 2>&1 || echo "FAILED: Cannot access AWS APIs"
+        echo ""
+        echo "=== Testing S3 Access ==="
+        aws s3 ls 2>&1 || echo "FAILED: S3 access denied or no buckets"
+        echo ""
+        echo "=== Summary ==="
+        echo "If you see FAILED messages above, your EC2 instance likely needs:"
+        echo "1. An IAM role attached to the instance"
+        echo "2. The IAM role should have appropriate permissions"
+        echo "3. The metadata service should be accessible (IMDSv1 or IMDSv2)"
+        echo "Container test completed."
     network_mode: host
     environment:
       - AWS_DEFAULT_REGION=us-east-1
