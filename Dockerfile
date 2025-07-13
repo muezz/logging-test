@@ -4,7 +4,7 @@ FROM node:22-alpine AS base
 FROM base AS deps
 WORKDIR /app
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
-RUN corepack enable && corepack prepare pnpm@9.15.0 --activate && pnpm i --frozen-lockfile
+RUN corepack enable && corepack prepare pnpm@latest --activate && pnpm i --frozen-lockfile
 
 
 # Stage 2: Build the application
@@ -12,7 +12,7 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN corepack enable && corepack prepare pnpm@9.15.0 --activate && pnpm run build
+RUN corepack enable && corepack prepare pnpm@latest --activate && pnpm run build
 
 # Stage 3: Production server
 FROM base AS runner
