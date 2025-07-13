@@ -15,4 +15,4 @@ COPY crontab /etc/cron.d/cloudfront-sync
 RUN chmod 0644 /etc/cron.d/cloudfront-sync && \
     crontab /etc/cron.d/cloudfront-sync
 
-CMD ["crond", "-f", "-l", "2"]
+CMD ["crond", "-n", "-l", "2"]
