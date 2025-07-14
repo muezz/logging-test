@@ -16,7 +16,7 @@ scrape_configs:
           - localhost
         labels:
           job: docker
-          __path__: /var/log/containers/*/*.log
+          __path__: /var/lib/docker/containers/*/*.log
     pipeline_stages:
       - json:
           expressions:
@@ -39,7 +39,7 @@ scrape_configs:
         labels:
           job: cloudfront
           log_type: access
-          __path__: /logs/cloudfront/**/*.gz
+          __path__: /var/log/cloudfront/**/*.log
     pipeline_stages:
       - multiline:
           firstline: '^\d{4}-\d{2}-\d{2}'
@@ -68,7 +68,7 @@ scrape_configs:
           - localhost
         labels:
           job: file-logs
-          __path__: /logs/cloudfront/**/*.log
+          __path__: /var/log/cloudfront/**/*.log
     pipeline_stages:
       - match:
           selector: '{job="file-logs"}'

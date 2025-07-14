@@ -5,6 +5,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     unzip \
     cron \
+    gzip \
     && rm -rf /var/lib/apt/lists/*
 
 # Install AWS CLI v2
@@ -20,8 +21,14 @@ RUN mkdir -p /logs/cloudfront
 ENV AWS_PAGER=""
 ENV AWS_CLI_AUTO_PROMPT=off
 
-# Create crontab file with proper logging and environment
-RUN echo "* * * * * root /usr/bin/env AWS_PAGER= AWS_CLI_AUTO_PROMPT=off /usr/local/bin/aws s3 sync s3://logging-test-cf-logs /logs/cloudfront --exact-timestamps --size-only >> /var/log/s3-sync.log 2>&1" > /etc/cron.d/s3-sync
+# Copy the sync and decompress script
+COPY s3-sync-decompress.sh /usr/local/bin/s3-sync-decompress.sh
+
+# Make the script executable
+RUN chmod +x /usr/local/bin/s3-sync-decompress.sh
+
+# Create crontab file with the new script
+RUN echo "* * * * * root /usr/local/bin/s3-sync-decompress.sh" > /etc/cron.d/s3-sync
 
 # Give execution rights on the cron job
 RUN chmod 0644 /etc/cron.d/s3-sync
