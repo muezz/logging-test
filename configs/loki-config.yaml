@@ -43,7 +43,6 @@ limits_config:
   ingestion_burst_size_mb: 24
   max_streams_per_user: 10000
   max_line_size: 256000
-  max_look_back_period: 0s
 
 table_manager:
   retention_deletes_enabled: false
