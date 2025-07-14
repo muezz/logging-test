@@ -1,43 +1,32 @@
-FROM ubuntu:22.04
+FROM alpine:3.18
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
+# Install dependencies (much faster than Ubuntu)
+RUN apk add --no-cache \
     curl \
     unzip \
-    cron \
     gzip \
-    && rm -rf /var/lib/apt/lists/*
+    bash \
+    dcron \
+    && rm -rf /var/cache/apk/*
 
 # Install AWS CLI v2
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
-    && unzip awscliv2.zip \
+RUN curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+    && unzip -q awscliv2.zip \
     && ./aws/install \
     && rm -rf awscliv2.zip aws/
 
-# Create logs directory
+# Create directories and set environment variables
 RUN mkdir -p /logs/cloudfront
-
-# Set environment variables for AWS CLI
 ENV AWS_PAGER=""
 ENV AWS_CLI_AUTO_PROMPT=off
 
-# Copy the sync and decompress script
+# Copy script
 COPY s3-sync-decompress.sh /usr/local/bin/s3-sync-decompress.sh
-
-# Make the script executable
 RUN chmod +x /usr/local/bin/s3-sync-decompress.sh
 
-# Create crontab file with the new script
-RUN echo "* * * * * root /usr/local/bin/s3-sync-decompress.sh" > /etc/cron.d/s3-sync
+# Configure cron for Alpine (different from Ubuntu)
+RUN echo "* * * * * /usr/local/bin/s3-sync-decompress.sh" > /etc/crontabs/root \
+    && touch /var/log/cron.log /var/log/s3-sync.log
 
-# Give execution rights on the cron job
-RUN chmod 0644 /etc/cron.d/s3-sync
-
-# Create the log file
-RUN touch /var/log/s3-sync.log
-
-# Create the log files to be able to run tail
-RUN touch /var/log/cron.log /var/log/s3-sync.log
-
-# Start cron in foreground
-CMD ["sh", "-c", "cron && tail -f /var/log/cron.log"]
+# Start cron in foreground (Alpine uses crond)
+CMD ["sh", "-c", "crond -f -l 8"]
