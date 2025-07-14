@@ -5,13 +5,11 @@ datasources:
     type: loki
     access: proxy
     url: http://loki:3100
-    uid: loki-uid
     isDefault: true
     jsonData:
       maxLines: 1000
       derivedFields:
-        - datasourceUid: loki-uid
-          matcherRegex: "trace_id=(\\w+)"
+        - datasourceUid: loki
+          matcherRegex: "(?:traceID|trace_id)=(\\w+)"
           name: TraceID
           url: "$${__value.raw}"
-    editable: true

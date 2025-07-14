@@ -27,7 +27,7 @@ services:
       - AWS_REGION=us-east-1
   
   loki:
-    image: grafana/loki:latest
+    image: grafana/loki:2.9.0
     ports:
       - "3100:3100"
     volumes:
@@ -38,7 +38,7 @@ services:
       - my_network
 
   promtail:
-    image: grafana/promtail:latest
+    image: grafana/promtail:2.9.0
     volumes:
       - /var/log:/var/log:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -51,7 +51,7 @@ services:
       - loki
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:10.0.0
     ports:
       - "3001:3000"
     networks:
@@ -59,7 +59,7 @@ services:
     depends_on:
       - loki
     volumes:
-      - ./configs/grafana-provisioning/:/etc/grafana/provisioning/
+      - ./configs/grafana-provisioning:/etc/grafana/provisioning
       - grafana-data:/var/lib/grafana
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
