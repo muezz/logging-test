@@ -22,25 +22,16 @@ scrape_configs:
           expressions:
             output: log
             stream: stream
-            attrs:
-      - json:
-          expressions:
-            tag:
-          source: attrs
-      - regex:
-          expression: (?P<container_name>(?:[^|]*))\|(?P<container_id>(?:[^|]*))
-          source: tag
+            time: time
       - timestamp:
           format: RFC3339Nano
           source: time
       - labels:
           stream:
-          container_name:
-          container_id:
       - output:
           source: output
 
-  # CloudFront access logs
+  # CloudFront access logs (standard format)
   - job_name: cloudfront
     static_configs:
       - targets:
@@ -54,7 +45,7 @@ scrape_configs:
           firstline: '^\d{4}-\d{2}-\d{2}'
           max_wait_time: 3s
       - regex:
-          expression: '^(?P<date>\d{4}-\d{2}-\d{2})\s+(?P<time>\d{2}:\d{2}:\d{2})\s+(?P<edge_location>\S+)\s+(?P<sc_bytes>\d+)\s+(?P<c_ip>\S+)\s+(?P<cs_method>\S+)\s+(?P<cs_uri_stem>\S+)\s+(?P<sc_status>\d+)\s+(?P<cs_referer>\S+)\s+(?P<cs_user_agent>[^\t]+)\s+(?P<cs_uri_query>\S+)\s+(?P<cs_cookie>\S+)\s+(?P<edge_result_type>\S+)\s+(?P<edge_request_id>\S+)\s+(?P<x_host_header>\S+)\s+(?P<cs_protocol>\S+)\s+(?P<cs_bytes>\d+)\s+(?P<time_taken>\d+\.\d+)\s+(?P<x_forwarded_for>\S+)\s+(?P<ssl_protocol>\S+)\s+(?P<ssl_cipher>\S+)\s+(?P<edge_response_result_type>\S+)\s+(?P<cs_protocol_version>\S+)\s+(?P<fle_status>\S+)\s+(?P<fle_encrypted_fields>\S+)\s+(?P<c_port>\d+)\s+(?P<time_to_first_byte>\d+\.\d+)\s+(?P<edge_detailed_result_type>\S+)\s+(?P<sc_content_type>\S+)\s+(?P<sc_content_len>\d+)\s+(?P<sc_range_start>\d+)\s+(?P<sc_range_end>\d+)'
+          expression: '^(?P<date>\d{4}-\d{2}-\d{2})\s+(?P<time>\d{2}:\d{2}:\d{2})\s+(?P<edge_location>\S+)\s+(?P<sc_bytes>\d+)\s+(?P<c_ip>\S+)\s+(?P<cs_method>\S+)\s+(?P<cs_uri_stem>\S+)\s+(?P<sc_status>\d+)\s+(?P<cs_referer>\S+)\s+(?P<cs_user_agent>[^\t]+)\s+(?P<cs_uri_query>\S+)\s+(?P<cs_cookie>\S+)\s+(?P<edge_result_type>\S+)\s+(?P<edge_request_id>\S+)\s+(?P<x_host_header>\S+)\s+(?P<cs_protocol>\S+)\s+(?P<cs_bytes>\d+)\s+(?P<time_taken>\d+(?:\.\d+)?)\s+(?P<x_forwarded_for>\S+)\s+(?P<ssl_protocol>\S+)\s+(?P<ssl_cipher>\S+)\s+(?P<edge_response_result_type>\S+)\s+(?P<cs_protocol_version>\S+)(?:\s+(?P<fle_status>\S+))?(?:\s+(?P<fle_encrypted_fields>\S+))?(?:\s+(?P<c_port>\d+))?(?:\s+(?P<time_to_first_byte>\d+(?:\.\d+)?))?(?:\s+(?P<edge_detailed_result_type>\S+))?(?:\s+(?P<sc_content_type>\S+))?(?:\s+(?P<sc_content_len>\d+))?(?:\s+(?P<sc_range_start>\d+))?(?:\s+(?P<sc_range_end>\d+))?'
       - timestamp:
           format: "2006-01-02 15:04:05"
           source: "date time"
@@ -66,34 +57,24 @@ scrape_configs:
           edge_result_type:
           x_host_header:
           cs_protocol:
-      - output:
-          source: cs_uri_stem
+      - template:
+          source: output
+          template: '{{.cs_method}} {{.cs_uri_stem}} {{.sc_status}} {{.time_taken}}ms from {{.c_ip}}'
 
-  # CloudFront real-time logs (if you have them)
-  - job_name: cloudfront-realtime
+  # Simple file-based logs (for any additional log files)
+  - job_name: file-logs
     static_configs:
       - targets:
           - localhost
         labels:
-          job: cloudfront
-          log_type: realtime
-          __path__: /var/log/cloudfront/realtime/*.gz
+          job: file-logs
+          __path__: /logs/cloudfront/**/*.log
     pipeline_stages:
-      - json:
-          expressions:
-            timestamp: timestamp
-            c_ip: c-ip
-            sc_status: sc-status
-            cs_method: cs-method
-            cs_uri_stem: cs-uri-stem
-            cs_user_agent: cs-user-agent
-            time_taken: time-taken
-      - timestamp:
-          format: Unix
-          source: timestamp
-      - labels:
-          c_ip:
-          sc_status:
-          cs_method:
-      - output:
-          source: cs_uri_stem
+      - match:
+          selector: '{job="file-logs"}'
+          stages:
+            - regex:
+                expression: '^(?P<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})'
+            - timestamp:
+                format: "2006-01-02T15:04:05"
+                source: timestamp
