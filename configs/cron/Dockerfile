@@ -29,4 +29,4 @@ RUN echo "* * * * * /usr/local/bin/s3-sync-decompress.sh" > /etc/crontabs/root \
     && touch /var/log/cron.log /var/log/s3-sync.log
 
 # Start cron in foreground (Alpine uses crond)
-CMD ["sh", "-c", "crond -f -l 8"]
+CMD ["crond", "-f", "-l", "8"]
