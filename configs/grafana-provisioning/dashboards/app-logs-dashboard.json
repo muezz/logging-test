@@ -1,290 +1,288 @@
 {
-    "dashboard": {
-        "id": null,
-        "title": "Application & CloudFront Logs",
-        "description": "Combined view of application logs and CloudFront access logs",
-        "tags": [
-            "logs",
-            "application",
-            "cloudfront"
-        ],
-        "timezone": "browser",
-        "panels": [
-            {
-                "id": 1,
-                "title": "Combined Log Stream",
-                "type": "logs",
-                "targets": [
-                    {
-                        "expr": "{job=~\"docker|app_logs|cloudfront\"} |= ``",
-                        "refId": "A",
-                        "datasource": {
-                            "type": "loki",
-                            "uid": "loki-uid"
-                        }
-                    }
-                ],
-                "gridPos": {
-                    "h": 12,
-                    "w": 24,
-                    "x": 0,
-                    "y": 0
-                },
-                "options": {
-                    "showTime": true,
-                    "showLabels": true,
-                    "showCommonLabels": false,
-                    "wrapLogMessage": false,
-                    "prettifyLogMessage": false,
-                    "enableLogDetails": true,
-                    "dedupStrategy": "none",
-                    "sortOrder": "Descending"
-                },
-                "fieldConfig": {
-                    "defaults": {
-                        "custom": {
-                            "displayMode": "table"
-                        }
+    "id": null,
+    "title": "Application & CloudFront Logs",
+    "description": "Combined view of application logs and CloudFront access logs",
+    "tags": [
+        "logs",
+        "application",
+        "cloudfront"
+    ],
+    "timezone": "browser",
+    "panels": [
+        {
+            "id": 1,
+            "title": "Combined Log Stream",
+            "type": "logs",
+            "targets": [
+                {
+                    "expr": "{job=~\"docker|app_logs|cloudfront\"} |= ``",
+                    "refId": "A",
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "loki-uid"
                     }
                 }
+            ],
+            "gridPos": {
+                "h": 12,
+                "w": 24,
+                "x": 0,
+                "y": 0
             },
-            {
-                "id": 2,
-                "title": "Log Statistics",
-                "type": "stat",
-                "targets": [
-                    {
-                        "expr": "sum(count_over_time({job=~\"docker|app_logs|cloudfront\"}[5m]))",
-                        "refId": "A",
-                        "datasource": {
-                            "type": "loki",
-                            "uid": "loki-uid"
-                        },
-                        "legendFormat": "Total Logs (5m)"
+            "options": {
+                "showTime": true,
+                "showLabels": true,
+                "showCommonLabels": false,
+                "wrapLogMessage": false,
+                "prettifyLogMessage": false,
+                "enableLogDetails": true,
+                "dedupStrategy": "none",
+                "sortOrder": "Descending"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "displayMode": "table"
                     }
-                ],
-                "gridPos": {
-                    "h": 4,
-                    "w": 6,
-                    "x": 0,
-                    "y": 12
-                },
-                "options": {
-                    "reduceOptions": {
-                        "values": false,
-                        "calcs": [
-                            "lastNotNull"
-                        ],
-                        "fields": ""
+                }
+            }
+        },
+        {
+            "id": 2,
+            "title": "Log Statistics",
+            "type": "stat",
+            "targets": [
+                {
+                    "expr": "sum(count_over_time({job=~\"docker|app_logs|cloudfront\"}[5m]))",
+                    "refId": "A",
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "loki-uid"
                     },
-                    "orientation": "auto",
-                    "textMode": "auto",
-                    "colorMode": "value",
-                    "graphMode": "area",
-                    "justifyMode": "auto"
+                    "legendFormat": "Total Logs (5m)"
                 }
+            ],
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 0,
+                "y": 12
             },
-            {
-                "id": 3,
-                "title": "CloudFront Requests by Status",
-                "type": "stat",
-                "targets": [
-                    {
-                        "expr": "sum by (status) (count_over_time({job=\"cloudfront\"}[5m]))",
-                        "refId": "A",
-                        "datasource": {
-                            "type": "loki",
-                            "uid": "loki-uid"
-                        },
-                        "legendFormat": "Status {{status}}"
-                    }
-                ],
-                "gridPos": {
-                    "h": 4,
-                    "w": 6,
-                    "x": 6,
-                    "y": 12
+            "options": {
+                "reduceOptions": {
+                    "values": false,
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": ""
                 },
-                "options": {
-                    "reduceOptions": {
-                        "values": false,
-                        "calcs": [
-                            "lastNotNull"
-                        ],
-                        "fields": ""
+                "orientation": "auto",
+                "textMode": "auto",
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto"
+            }
+        },
+        {
+            "id": 3,
+            "title": "CloudFront Requests by Status",
+            "type": "stat",
+            "targets": [
+                {
+                    "expr": "sum by (status) (count_over_time({job=\"cloudfront\"}[5m]))",
+                    "refId": "A",
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "loki-uid"
                     },
-                    "orientation": "auto",
-                    "textMode": "auto",
-                    "colorMode": "value",
-                    "graphMode": "area",
-                    "justifyMode": "auto"
+                    "legendFormat": "Status {{status}}"
                 }
+            ],
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 6,
+                "y": 12
             },
-            {
-                "id": 4,
-                "title": "Application Errors",
-                "type": "stat",
-                "targets": [
-                    {
-                        "expr": "sum(count_over_time({job=~\"docker|app_logs\"} |~ \"(?i)error|exception|fail\" [5m]))",
-                        "refId": "A",
-                        "datasource": {
-                            "type": "loki",
-                            "uid": "loki-uid"
-                        },
-                        "legendFormat": "Errors (5m)"
-                    }
-                ],
-                "gridPos": {
-                    "h": 4,
-                    "w": 6,
-                    "x": 12,
-                    "y": 12
+            "options": {
+                "reduceOptions": {
+                    "values": false,
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": ""
                 },
-                "options": {
-                    "reduceOptions": {
-                        "values": false,
-                        "calcs": [
-                            "lastNotNull"
-                        ],
-                        "fields": ""
+                "orientation": "auto",
+                "textMode": "auto",
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto"
+            }
+        },
+        {
+            "id": 4,
+            "title": "Application Errors",
+            "type": "stat",
+            "targets": [
+                {
+                    "expr": "sum(count_over_time({job=~\"docker|app_logs\"} |~ \"(?i)error|exception|fail\" [5m]))",
+                    "refId": "A",
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "loki-uid"
                     },
-                    "orientation": "auto",
-                    "textMode": "auto",
-                    "colorMode": "value",
-                    "graphMode": "area",
-                    "justifyMode": "auto"
-                },
-                "fieldConfig": {
-                    "defaults": {
-                        "color": {
-                            "mode": "thresholds"
-                        },
-                        "thresholds": {
-                            "mode": "absolute",
-                            "steps": [
-                                {
-                                    "color": "green",
-                                    "value": null
-                                },
-                                {
-                                    "color": "red",
-                                    "value": 1
-                                }
-                            ]
-                        }
-                    }
+                    "legendFormat": "Errors (5m)"
                 }
+            ],
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 12,
+                "y": 12
             },
-            {
-                "id": 5,
-                "title": "Request Methods",
-                "type": "stat",
-                "targets": [
-                    {
-                        "expr": "sum by (method) (count_over_time({job=\"cloudfront\"}[5m]))",
-                        "refId": "A",
-                        "datasource": {
-                            "type": "loki",
-                            "uid": "loki-uid"
-                        },
-                        "legendFormat": "{{method}}"
-                    }
-                ],
-                "gridPos": {
-                    "h": 4,
-                    "w": 6,
-                    "x": 18,
-                    "y": 12
+            "options": {
+                "reduceOptions": {
+                    "values": false,
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": ""
                 },
-                "options": {
-                    "reduceOptions": {
-                        "values": false,
-                        "calcs": [
-                            "lastNotNull"
-                        ],
-                        "fields": ""
+                "orientation": "auto",
+                "textMode": "auto",
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
                     },
-                    "orientation": "auto",
-                    "textMode": "auto",
-                    "colorMode": "value",
-                    "graphMode": "area",
-                    "justifyMode": "auto"
-                }
-            },
-            {
-                "id": 6,
-                "title": "Filtered Log Table",
-                "type": "table",
-                "targets": [
-                    {
-                        "expr": "{job=~\"docker|app_logs|cloudfront\"} |= ``",
-                        "refId": "A",
-                        "datasource": {
-                            "type": "loki",
-                            "uid": "loki-uid"
-                        }
-                    }
-                ],
-                "gridPos": {
-                    "h": 12,
-                    "w": 24,
-                    "x": 0,
-                    "y": 16
-                },
-                "options": {
-                    "showHeader": true,
-                    "sortBy": [
-                        {
-                            "displayName": "Time",
-                            "desc": true
-                        }
-                    ]
-                },
-                "fieldConfig": {
-                    "defaults": {
-                        "custom": {
-                            "displayMode": "table",
-                            "filterable": true
-                        }
-                    }
-                },
-                "transformations": [
-                    {
-                        "id": "organize",
-                        "options": {
-                            "excludeByName": {},
-                            "indexByName": {},
-                            "renameByName": {
-                                "Time": "Timestamp",
-                                "Line": "Message"
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 1
                             }
-                        }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "id": 5,
+            "title": "Request Methods",
+            "type": "stat",
+            "targets": [
+                {
+                    "expr": "sum by (method) (count_over_time({job=\"cloudfront\"}[5m]))",
+                    "refId": "A",
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "loki-uid"
+                    },
+                    "legendFormat": "{{method}}"
+                }
+            ],
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 18,
+                "y": 12
+            },
+            "options": {
+                "reduceOptions": {
+                    "values": false,
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": ""
+                },
+                "orientation": "auto",
+                "textMode": "auto",
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto"
+            }
+        },
+        {
+            "id": 6,
+            "title": "Filtered Log Table",
+            "type": "table",
+            "targets": [
+                {
+                    "expr": "{job=~\"docker|app_logs|cloudfront\"} |= ``",
+                    "refId": "A",
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "loki-uid"
+                    }
+                }
+            ],
+            "gridPos": {
+                "h": 12,
+                "w": 24,
+                "x": 0,
+                "y": 16
+            },
+            "options": {
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "displayName": "Time",
+                        "desc": true
                     }
                 ]
-            }
-        ],
-        "time": {
-            "from": "now-1h",
-            "to": "now"
-        },
-        "timepicker": {
-            "refresh_intervals": [
-                "5s",
-                "10s",
-                "30s",
-                "1m",
-                "5m",
-                "15m",
-                "30m",
-                "1h",
-                "2h",
-                "1d"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "displayMode": "table",
+                        "filterable": true
+                    }
+                }
+            },
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {},
+                        "renameByName": {
+                            "Time": "Timestamp",
+                            "Line": "Message"
+                        }
+                    }
+                }
             ]
-        },
-        "refresh": "5s",
-        "schemaVersion": 27,
-        "version": 1,
-        "links": []
-    }
+        }
+    ],
+    "time": {
+        "from": "now-1h",
+        "to": "now"
+    },
+    "timepicker": {
+        "refresh_intervals": [
+            "5s",
+            "10s",
+            "30s",
+            "1m",
+            "5m",
+            "15m",
+            "30m",
+            "1h",
+            "2h",
+            "1d"
+        ]
+    },
+    "refresh": "5s",
+    "schemaVersion": 27,
+    "version": 1,
+    "links": []
 }
