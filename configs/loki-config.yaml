@@ -8,13 +8,33 @@ common:
   path_prefix: /loki
   storage:
     filesystem:
-      chunks_directory: /tmp/loki/chunks
-      rules_directory: /tmp/loki/rules
+      chunks_directory: /loki/chunks
+      rules_directory: /loki/rules
   replication_factor: 1
   ring:
     instance_addr: 127.0.0.1
     kvstore:
       store: inmemory
+
+ingester:
+  lifecycler:
+    address: 127.0.0.1
+    ring:
+      kvstore:
+        store: inmemory
+      replication_factor: 1
+    final_sleep: 0s
+  chunk_idle_period: 5m
+  chunk_retain_period: 30s
+  max_transfer_retries: 0
+  wal:
+    enabled: false
+
+limits_config:
+  reject_old_samples: true
+  reject_old_samples_max_age: 168h
+  ingestion_rate_mb: 16
+  ingestion_burst_size_mb: 32
 
 query_range:
   results_cache:
@@ -34,7 +54,15 @@ schema_config:
         period: 24h
 
 ruler:
-  alertmanager_url: http://localhost:9093
+  storage:
+    type: local
+    local:
+      directory: /loki/rules
+  rule_path: /loki/rules
+  ring:
+    kvstore:
+      store: inmemory
+  enable_api: true
 
 # By default, Loki will send anonymous, but uniquely-identifiable usage and configuration
 # analytics to Grafana Labs. These statistics are sent to https://stats.grafana.org/
